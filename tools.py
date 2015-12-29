@@ -1,16 +1,77 @@
 """
-Useful functions.
+Useful functions
 
 """
 
 import numpy as np
-from scipy.interpolate import InterpolatedUnivariateSpline
 
+
+def idx_is_valid(ind):
+    """ Return False if index returned by <np.where> is empty. """
+    
+    return False if len(ind[0]) == 0 else True
+    
 
 def interp_1d(xnew, x, y):
     """ Evaluate y at xnew using linear interpolation """
 
     return np.interp(xnew, x, y)
+
+
+def interp_fulldepth(mdl_z, mdl_dat, ob_z):
+    """
+    Return  data over full model depth range interpolated to have
+    the same number of zlevels as the observed profile.
+    
+    """
+    if all(mdl_dat.mask == True):
+        interp_dat = np.ma.MaskedArray(ob_z, mask=True)
+        interp_z = ob_z
+    else:
+        zind = np.where(mdl_dat.mask != True)
+        interp_z = resample_depths(mdl_z[zind], len(ob_z))
+        interp_dat = interp_1d(interp_z, mdl_z, mdl_dat)
+    
+    return interp_z, interp_dat
+
+
+def interp_obsdepth(mdl_z, mdl_dat, ob_z, ob_dat):
+    """
+    Return model data interpolated to observed depths. Depths
+    that are unobserved or outside the valid model range are
+    masked and returned as missing values.
+    
+    Test cases:
+    - No obs, returns all missing.
+    - No model data, returns all missing.
+    - Model deeper than observed, returns missing where obs missing.
+    - Obs deeper than model, returns missing where model missing.    
+    
+    """
+    interp_z = ob_z
+    interp_dat = ob_dat
+    
+    if all(ob_dat.mask == True):    # Case 1
+        interp_dat = ob_dat
+    elif all(mdl_dat.mask == True): # Case 2
+        interp_dat = np.ma.MaskedArray(ob_dat, mask=True)
+    else:
+        # Find min/max depths after dealing with mdi values
+        maskind_mdl = np.where(mdl_dat.mask != True)
+        maskind_ob = np.where(ob_dat.mask != True)
+        minz = np.max([ob_z[maskind_ob].min(), mdl_z[maskind_mdl].min()])
+        maxz = np.min([ob_z[maskind_ob].max(), mdl_z[maskind_mdl].max()])
+        zind_mdl = np.where((mdl_z >= minz) & (mdl_z <= maxz))
+        zind_ob = np.where((ob_z >= minz) & (ob_z <= maxz))
+        
+        if idx_is_valid(zind_ob) and idx_is_valid(zind_mdl):
+            interp_dat = np.ma.MaskedArray(ob_dat, mask=True)
+            interp_dat[zind_ob] = interp_1d(
+                ob_z[zind_ob], mdl_z[zind_mdl], mdl_dat[zind_mdl])
+        else:
+            interp_dat = np.ma.MaskedArray(ob_dat, mask=True)
+        
+    return interp_z, interp_dat
 
 
 def resample_depths(z, nz):
@@ -25,7 +86,7 @@ def resample_depths(z, nz):
     
     # Check data is monotonic
     diffs = np.diff(z)
-    if not all(diffs >= 0):
+    if not all(diffs > 0):
         raise TypeError('Depths must increase monotonically')
     
     # Linearly interpolate first differences
