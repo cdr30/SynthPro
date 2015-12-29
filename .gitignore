@@ -1,0 +1,9 @@
+# Ignore .pyc files
+*.pyc
+
+# Ignore PyDev files
+*.pydevproject
+*.project
+  
+# Ignore emacs tmp files
+*~

@@ -58,9 +58,9 @@ yr, mon = 2010, 1
 
 
 ### File locations
-obsf = '/data/local/hadrr/tmp/EN.4.1.1.f.profiles.g10.%4i%02i.nc' % (yr, mon)
-synf = '/data/local/hadrr/tmp/EN.4.1.1.f.profiles.synthetic.%4i%02i.nc' % (yr, mon)
-synf_fd = '/data/local/hadrr/tmp/EN.4.1.1.f.profiles.synthetic_full_depth.%4i%02i.nc' % (yr, mon)
+obsf = '/tmp/EN.4.1.1.f.profiles.g10.%4i%02i.nc' % (yr, mon)
+synf = '/tmp/EN.4.1.1.f.profiles.synthetic.%4i%02i.nc' % (yr, mon)
+synf_fd = '/tmp/EN.4.1.1.f.profiles.synthetic_full_depth.%4i%02i.nc' % (yr, mon)
 
 
 ### Load data
@@ -82,37 +82,33 @@ zsyn_s_fd = load_profile_data(synf_fd, zvar, qcvar=qcvar_s)
 
 
 ### Plot observations vs synthetic temperature data
-plt.plot(tobs.reshape(tobs.size), tsyn.reshape(tsyn.size), '.r', ms=1)
+plt.figure()
+plt.plot(tobs.reshape(tobs.size), tsyn.reshape(tsyn.size), 'xr')
 plt.xlabel('Observed T')
 plt.ylabel('Synthetic T')
 plt.show()
-
-### Plot observations vs synthetic salinity data
-plt.plot(sobs.reshape(sobs.size), ssyn.reshape(ssyn.size), '.r', ms=1)
-plt.xlabel('Observed S')
-plt.ylabel('Synthetic S')
-plt.show()
-
 ### Plot observed temperatures against depth
-plt.plot(tobs.reshape(zobs.size), -zobs.reshape(zobs.size), 'r.')
+plt.figure()
+plt.plot(tobs.reshape(zobs.size), -zobs.reshape(zobs.size), 'xr')
 plt.xlabel('Observed T')
 plt.ylabel('Depth')
 plt.show()
 
 ### Plot synthetic temperatures against depth
-plt.plot(tsyn.reshape(tsyn.size), -zsyn.reshape(zsyn.size), 'r.')
+plt.figure()
+plt.plot(tsyn.reshape(tsyn.size), -zsyn.reshape(zsyn.size), 'xr')
 plt.xlabel('Synthetic T')
 plt.ylabel('Depth')
 plt.show()
 
 ### Plot observed salinity against depth
-plt.plot(sobs.reshape(sobs.size), -zobs_s.reshape(zobs_s.size), 'r.')
+plt.plot(sobs.reshape(sobs.size), -zobs_s.reshape(zobs_s.size), 'xr')
 plt.xlabel('Observed S')
 plt.ylabel('Depth')
 plt.show()
 
 ### Plot synthetic salinity against depth
-plt.plot(ssyn.reshape(ssyn.size), -zsyn_s.reshape(zsyn_s.size), 'r.')
+plt.plot(ssyn.reshape(ssyn.size), -zsyn_s.reshape(zsyn_s.size), 'xr')
 plt.xlabel('Synthetic S')
 plt.ylabel('Depth')
 plt.show()

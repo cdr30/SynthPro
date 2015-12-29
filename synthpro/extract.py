@@ -1,5 +1,5 @@
 """
-Main profile extraction routines. 
+Profile extraction routines. 
 
 """
 
@@ -15,32 +15,21 @@ def extractingbar(n, nmax):
 def writingbar(n, nmax):
     """ Print progress bar for extraction of data"""
     tools.print_progress('Saving synthetic data', nmax, n)
-
+            
 
 def extract_profile(config, modelDat, ob_z, ob_lat, ob_lon, ob_dat):
     """ Extract profile at an observed location """
 
-    # Add check if obs_dat all masked and skip extraction.
-    
-    dat = modelDat.extract_profile(ob_lat, ob_lon)
-    z = modelDat.depths
+    mdl_dat = modelDat.extract_profile(ob_lat, ob_lon)
+    mdl_z = modelDat.depths
         
     if config.getboolean('options', 'extract_full_depth'):
-        zind = np.where(dat.mask != True)
-        znew = tools.resample_depths(z[zind], len(ob_z))
-        datnew = tools.interp_1d(znew, z, dat)
-    
+        extr_z, extr_dat = tools.interp_fulldepth(mdl_z, mdl_dat, ob_z)
     else:
-        if all(ob_dat.mask == True):
-            datnew = ob_dat
-        else:
-            zind = np.where(dat.mask != True)
-            datnew = tools.interp_1d(ob_z, z[zind], dat[zind])
-            new_mask = (ob_dat.mask) | (ob_z > z.max())
-            datnew = tools.mask_data(datnew, new_mask, True)
-        znew = ob_z 
-            
-    return znew, datnew
+        extr_z, extr_dat = tools.interp_obsdepth(mdl_z, mdl_dat, ob_z, ob_dat)
+
+    return extr_z, extr_dat
+
 
 
 def extract_profiles(config, obsDat, synthDat, modelTemp, modelSal):
