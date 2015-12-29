@@ -1,5 +1,5 @@
 """
-Rutines to parse command line arguments.
+Routines to parse command line arguments.
 
 """
 
