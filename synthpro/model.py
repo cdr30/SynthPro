@@ -62,6 +62,9 @@ class ModelData(object):
             dat = dat[:, self.jmin:self.jmax, self.imin:self.imax]
         elif (len(dat.shape) == 4) & (dat.shape[0] == 1):
             dat = dat[0, :, self.jmin:self.jmax, self.imin:self.imax]
+        else:
+            raise ShapeError('%s has invalid shape: &s', ncvar,
+                             repr(dat.shape))
         
         ncf.close()
         
@@ -137,8 +140,8 @@ def assoc_model(config, data_type, **kwargs):
     if model_type == 'NEMO':
         modelDat = ModelData(config, data_type, **kwargs)
     else:
-        print 'Model type %s not recognized' % model_type
-        print 'Attempting to load model data assuming default NEMO data structure'
+        print 'WARNING: Model type %s not recognized' % model_type
+        print 'WARNING: attempting to load model data assuming default NEMO data structure'
         modelDat = ModelData(config, data_type, **kwargs)
     
     return modelDat

@@ -47,5 +47,6 @@ def main():
     extract.extract_profiles(config, obsDat, synthDat, modelTemp, modelSal)
     
     # Finished
-    printmsg.finished()
+    if config.getboolean('options', 'print_stdout'): 
+        printmsg.finished()
  

@@ -4,7 +4,7 @@ Module containing routines to print messages to standard output.
 """
 
 import tools
-
+import sys
 
 def finished():
     """ Print finished message """
