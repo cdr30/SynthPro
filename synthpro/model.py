@@ -20,7 +20,7 @@ class ModelData(object):
     a NEMO-type netcdf file.
     
     """
-    def __init__(self, config, data_type, preload_data=False):
+    def __init__(self, config, data_type, preload_data=True):
         """
         Initialize <ModelData> object using configuration options
         

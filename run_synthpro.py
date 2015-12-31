@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 
 """
-Top level script used to execute SynthPro package from command line.
+Script used to execute SynthPro package from command line.
 
 """
 

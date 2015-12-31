@@ -3,19 +3,11 @@ Profile extraction routines.
 
 """
 
-import tools
 import numpy as np
 
+import tools
+import printmsg
 
-def extractingbar(n, nmax):
-    """ Print progress bar for extraction of data"""
-    tools.print_progress('Extracting synthetic data', nmax, n)
-    
-    
-def writingbar(n, nmax):
-    """ Print progress bar for extraction of data"""
-    tools.print_progress('Saving synthetic data', nmax, n)
-            
 
 def extract_profile(config, modelDat, ob_z, ob_lat, ob_lon, ob_dat):
     """ Extract profile at an observed location """
@@ -31,7 +23,6 @@ def extract_profile(config, modelDat, ob_z, ob_lat, ob_lon, ob_dat):
     return extr_z, extr_dat
 
 
-
 def extract_profiles(config, obsDat, synthDat, modelTemp, modelSal):
     """ Extract synthetic profiles from model data for each observed location """
     
@@ -41,7 +32,8 @@ def extract_profiles(config, obsDat, synthDat, modelTemp, modelSal):
     syn_temps = synthDat.temps
     syn_sals = synthDat.sals
     
-    extractingbar(0, nmax)
+    printmsg.extracting(0, nmax)
+    
     for nob in nobs:        
         ob_lat = obsDat.lats[nob]
         ob_lon = obsDat.lons[nob]
@@ -56,10 +48,10 @@ def extract_profiles(config, obsDat, synthDat, modelTemp, modelSal):
         syn_temps[nob] = syn_t
         syn_sals[nob] = syn_s
         
-        extractingbar(nob + 1, nmax)
+        printmsg.extracting(nob + 1, nmax)
     
-    writingbar(0, 3)
-    synthDat.write_sals(syn_sals); writingbar(1, 3)
-    synthDat.write_temps(syn_temps); writingbar(2, 3)
-    synthDat.write_depths(syn_depths); writingbar(3, 3)
+    printmsg.writing(0, 3)
+    synthDat.write_sals(syn_sals); printmsg.writing(1, 3)
+    synthDat.write_temps(syn_temps); printmsg.writing(2, 3)
+    synthDat.write_depths(syn_depths); printmsg.writing(3, 3)
 

@@ -19,7 +19,7 @@ class Profiles(object):
     netcdf files containing observed profile data
     
     """
-    def __init__(self, config, profile_type, preload_data=False):
+    def __init__(self, config, profile_type, preload_data=True):
         """
         Initialize Profile class using configuration options
         
