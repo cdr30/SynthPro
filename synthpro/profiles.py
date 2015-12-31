@@ -38,7 +38,18 @@ class Profiles(object):
             self.load_depths()
             self.load_lats()
             self.load_lons()
-            self.load_dts()
+            
+        if profile_type == 'synth_profiles':
+            self.dist_var = 'distance_to_ob'
+            self.duplicate_var(self.lat_var, self.dist_var)
+            
+    def duplicate_var(self, ncvar1, ncvar2):
+        """ Create new variable based on existing variable """
+        ncf = Dataset(self.f, 'r+')
+        var1 = ncf.variables[ncvar1]
+        ncf.createVariable(ncvar2, var1.dtype, dimensions=var1.dimensions,
+                           fill_value=1e20)
+        ncf.close()
       
     def read_var(self, ncvar):
         """ Read data from specified variable """
@@ -55,6 +66,10 @@ class Profiles(object):
         var[:] = dat
         ncf.close()
         
+    def write_dist(self, dat):
+        """ Write distance data to file. """
+        self.write_var(self.dist_var, dat)
+        
     def write_depths(self, dat):
         """ Write depth data to file. """
         self.write_var(self.depth_var, dat)
@@ -67,13 +82,6 @@ class Profiles(object):
         """ Write depth data to file. """
         self.write_var(self.sal_var, dat)
                 
-    def load_dts(self):
-        """ Load dates as <np.array> of <datetime.datetime> values """
-        jdays = self.read_var(self.dt_var)
-        dt0 = datetime.datetime(1950, 01, 01, 0, 0, 0)
-        self.dts = np.array([dt0 + datetime.timedelta(jday) for jday in jdays])
-        self.test_shape(self.dt_var, self.dts.shape, 1)
-        
     def load_temps(self):
         """ Load temperatures as <np.array> with dimensions [t, z] """
         self.temps = self.read_var(self.temp_var)

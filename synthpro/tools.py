@@ -118,11 +118,11 @@ def find_nearest_neigbour(obs_lat, obs_lon, model_lats, model_lons):
         d = equirect_distance(obs_lat, obs_lon, init_lats, init_lons)    
         final_idx = np.unravel_index(d.argmin(), d.shape)
         j, i  = init_idx[0][final_idx], init_idx[1][final_idx]
-    
+        dist= d.min()
     else:
-        j, i, d = None, None, 1e20
+        j, i, dist = None, None, 1.e20
         
-    return j, i, d
+    return j, i, dist
 
 
 def equirect_distance(lat1, lon1, lat2, lon2):
