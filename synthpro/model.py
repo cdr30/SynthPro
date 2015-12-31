@@ -59,7 +59,6 @@ class ModelData(object):
         self.test_shape(self.data_var, self.data.shape, 3)
         self.load_mask()
         self.data = tools.mask_data(self.data, self.mask, self.mask_mdi)
-
         
     def load_depths(self):
         """ Load depths as <np.array> with dimensions [z] """
@@ -93,15 +92,19 @@ class ModelData(object):
 
     def find_nearest(self, lat, lon):
         """ Extract model profile for the specified i, j coord."""
-        j, i = tools.find_nearest_neigbour(lat, lon, self.lats, self.lons)
+        j, i, dist = tools.find_nearest_neigbour(lat, lon, self.lats, self.lons)
 
-        return j, i
+        return j, i, dist
     
     def extract_profile(self, lat, lon):
-        """ Extract model profile for the specified lat/lon """
-        j, i = self.find_nearest(lat, lon)
+        """ Return model profile for the specified lat/lon 
+        and distance to observed location"""
+        j, i, dist = self.find_nearest(lat, lon)
         
-        return self.data[:, j, i]
+        if (j is not None) and (i is not None):
+            return self.data[:, j, i], dist
+        else:
+            return np.ma.MaskedArray(self.data[:, 0, 0], mask=True), dist
         
     def test_shape(self, varname, varshape, ndim):
         if len(varshape) != ndim:

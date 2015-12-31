@@ -1,4 +1,4 @@
-#!/usr/local/sci/bin/python2.7
+#!/usr/bin/env python2.7
 """
 Script to visualize synthetic profile data generated
 from EN4 observational profiles.
@@ -54,31 +54,31 @@ svar = 'PSAL_CORRECTED'
 zvar = 'DEPH_CORRECTED'
 qcvar_t = 'POTM_CORRECTED_QC'
 qcvar_s = 'PSAL_CORRECTED_QC'
-yr, mon = 2010, 1
+yr, mon = 1900,01
 
 
 ### File locations
 obsf = '/tmp/EN.4.1.1.f.profiles.g10.%4i%02i.nc' % (yr, mon)
 synf = '/tmp/EN.4.1.1.f.profiles.synthetic.%4i%02i.nc' % (yr, mon)
-synf_fd = '/tmp/EN.4.1.1.f.profiles.synthetic_full_depth.%4i%02i.nc' % (yr, mon)
+#synf_fd = '/tmp/EN.4.1.1.f.profiles.synthetic_full_depth.%4i%02i.nc' % (yr, mon)
 
 
 ### Load data
 tobs = load_profile_data(obsf, tvar, qcvar=qcvar_t)
 tsyn = load_profile_data(synf, tvar, qcvar=qcvar_t)
-tsyn_fd = load_profile_data(synf_fd, tvar, qcvar=qcvar_t)
+#tsyn_fd = load_profile_data(synf_fd, tvar, qcvar=qcvar_t)
 
 sobs = load_profile_data(obsf, svar, qcvar=qcvar_s)
 ssyn = load_profile_data(synf, svar, qcvar=qcvar_s)
-ssyn_fd = load_profile_data(synf_fd, svar, qcvar=qcvar_s)
+#ssyn_fd = load_profile_data(synf_fd, svar, qcvar=qcvar_s)
 
 zobs = load_profile_data(obsf, zvar, qcvar=qcvar_t)
 zsyn = load_profile_data(synf, zvar, qcvar=qcvar_t)
-zsyn_fd = load_profile_data(synf_fd, zvar, qcvar=qcvar_t)
+#zsyn_fd = load_profile_data(synf_fd, zvar, qcvar=qcvar_t)
 
 zobs_s = load_profile_data(obsf, zvar, qcvar=qcvar_s)
 zsyn_s = load_profile_data(synf, zvar, qcvar=qcvar_s)
-zsyn_s_fd = load_profile_data(synf_fd, zvar, qcvar=qcvar_s)
+#zsyn_s_fd = load_profile_data(synf_fd, zvar, qcvar=qcvar_s)
 
 
 ### Plot observations vs synthetic temperature data

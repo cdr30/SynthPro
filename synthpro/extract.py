@@ -12,7 +12,7 @@ import printmsg
 def extract_profile(config, modelDat, ob_z, ob_lat, ob_lon, ob_dat):
     """ Extract profile at an observed location """
 
-    mdl_dat = modelDat.extract_profile(ob_lat, ob_lon)
+    mdl_dat, dist = modelDat.extract_profile(ob_lat, ob_lon)
     mdl_z = modelDat.depths
         
     if config.getboolean('options', 'extract_full_depth'):
