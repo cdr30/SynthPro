@@ -20,7 +20,7 @@ class ModelData(object):
     a NEMO-type netcdf file.
     
     """
-    def __init__(self, config, data_type, preload_data=False):
+    def __init__(self, config, data_type, preload_data=True):
         """
         Initialize <ModelData> object using configuration options
         
@@ -33,6 +33,10 @@ class ModelData(object):
         self.depth_var = config.get(data_type, 'depth_var')
         self.lat_var = config.get(data_type, 'lat_var')
         self.lon_var = config.get(data_type, 'lon_var')
+        self.imin = config.getint(data_type, 'imin')
+        self.imax = config.getint(data_type, 'imax')
+        self.jmin = config.getint(data_type, 'jmin')
+        self.jmax = config.getint(data_type, 'jmax')
         self.mask_loaded = False 
       
         if preload_data:
@@ -48,28 +52,37 @@ class ModelData(object):
         else:
             ncf = Dataset(altf)
         
-        dat = ncf.variables[ncvar][:]
+        dat = ncf.variables[ncvar]
+        
+        if len(dat.shape) == 1:
+            dat = dat[:]
+        elif len(dat.shape) == 2:
+            dat = dat[self.jmin:self.jmax, self.imin:self.imax]
+        elif len(dat.shape) == 3:
+            dat = dat[:, self.jmin:self.jmax, self.imin:self.imax]
+        elif (len(dat.shape) == 4) & (dat.shape[0] == 1):
+            dat = dat[0, :, self.jmin:self.jmax, self.imin:self.imax]
+        
         ncf.close()
         
         return dat
 
     def load_data(self):
         """ Load data as <np.array> with dimensions [z, x, y] """
-        self.data = np.squeeze(self.read_var(self.data_var))
+        self.data = self.read_var(self.data_var)
         self.test_shape(self.data_var, self.data.shape, 3)
         self.load_mask()
         self.data = tools.mask_data(self.data, self.mask, self.mask_mdi)
-
         
     def load_depths(self):
         """ Load depths as <np.array> with dimensions [z] """
-        self.depths = np.squeeze(self.read_var(self.depth_var))
+        self.depths = self.read_var(self.depth_var)
         self.test_shape(self.depth_var, self.depths.shape, 1)
         
     def load_lats(self):
         """ Load latitudes as <np.array> with dimensions [y, x]
             and fill value of +1e20 """
-        self.lats = np.squeeze(self.read_var(self.lat_var))
+        self.lats = self.read_var(self.lat_var)
         self.test_shape(self.lat_var, self.lats.shape, 2)
         self.lats = tools.mask_data(
             self.lats, self.mask[0], self.mask_mdi, fill_value=1e20)
@@ -78,7 +91,7 @@ class ModelData(object):
     def load_lons(self):
         """ Load longitudes as <np.array> with dimensions [y, x] 
             and fill value of +1e20 """
-        self.lons = np.squeeze(self.read_var(self.lon_var))
+        self.lons = self.read_var(self.lon_var)
         self.test_shape(self.lon_var, self.lons.shape, 2)
         self.lons = tools.mask_data(
             self.lons, self.mask[0], self.mask_mdi, fill_value=1e20)
@@ -87,21 +100,25 @@ class ModelData(object):
     def load_mask(self):
         """ Load longitudes as <np.array> with dimensions [z, y, x] """
         if not self.mask_loaded:
-            self.mask = np.squeeze(self.read_var(self.mask_var, altf=self.maskf))
+            self.mask = self.read_var(self.mask_var, altf=self.maskf)
             self.test_shape(self.mask_var, self.mask.shape, 3)
             self.mask_loaded = True
 
     def find_nearest(self, lat, lon):
         """ Extract model profile for the specified i, j coord."""
-        j, i = tools.find_nearest_neigbour(lat, lon, self.lats, self.lons)
+        j, i, dist = tools.find_nearest_neigbour(lat, lon, self.lats, self.lons)
 
-        return j, i
+        return j, i, dist
     
     def extract_profile(self, lat, lon):
-        """ Extract model profile for the specified lat/lon """
-        j, i = self.find_nearest(lat, lon)
+        """ Return model profile for the specified lat/lon 
+        and distance to observed location"""
+        j, i, dist = self.find_nearest(lat, lon)
         
-        return self.data[:, j, i]
+        if (j is not None) and (i is not None):
+            return self.data[:, j, i], dist
+        else:
+            return np.ma.MaskedArray(self.data[:, 0, 0], mask=True), dist
         
     def test_shape(self, varname, varshape, ndim):
         if len(varshape) != ndim:

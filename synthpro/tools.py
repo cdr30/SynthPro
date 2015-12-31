@@ -40,13 +40,7 @@ def interp_obsdepth(mdl_z, mdl_dat, ob_z, ob_dat):
     Return model data interpolated to observed depths. Depths
     that are unobserved or outside the valid model range are
     masked and returned as missing values.
-    
-    Test cases:
-    - No obs, returns all missing.
-    - No model data, returns all missing.
-    - Model deeper than observed, returns missing where obs missing.
-    - Obs deeper than model, returns missing where model missing.    
-    
+
     """
     interp_z = ob_z
     interp_dat = ob_dat
@@ -107,51 +101,29 @@ def find_nearest_neigbour(obs_lat, obs_lon, model_lats, model_lons):
     """ Return coordinate for nearest-neighbor model grid-point """ 
     
     tol = 0.25
+    max_tol = 2
     init_idx = ([], [])
     
-    while len(init_idx[0]) == 0:
+    while (len(init_idx[0]) == 0) & (tol < max_tol):
         init_idx = np.where((model_lats <= obs_lat + tol) & 
                             (model_lats >= obs_lat - tol) & 
                             (model_lons <= obs_lon + tol) & 
                             (model_lons >= obs_lon - tol))
         tol = tol * 2.
     
-    init_lats = model_lats[init_idx]
-    init_lons = model_lons[init_idx]
-    
-    d = equirect_distance(obs_lat, obs_lon, init_lats, init_lons)    
-    final_idx = np.unravel_index(d.argmin(), d.shape)
-    j, i  = init_idx[0][final_idx], init_idx[1][final_idx]
+    if tol < max_tol:
+        init_lats = model_lats[init_idx]
+        init_lons = model_lons[init_idx]
         
-    return j, i 
+        d = equirect_distance(obs_lat, obs_lon, init_lats, init_lons)    
+        final_idx = np.unravel_index(d.argmin(), d.shape)
+        j, i  = init_idx[0][final_idx], init_idx[1][final_idx]
+        dist= d.min()
+    else:
+        j, i, dist = None, None, 1.e20
+        
+    return j, i, dist
 
-
-def haversine_distance(lat1, lon1, lat2, lon2):
-    """
-    Return great circle distance between two points
-    using Haversine formula:
-    
-    a = sin^2((lat1-lat2)/2) + cos(lat1) * cos(lat2) * sin^2((lon1-lon2)/2)
-    c = 2 * arctan2(sqrt(a), sqrt(1-a))
-    d = R * c
-    
-    where R is earth's radius
-    
-    """
-    
-    R = 6371000. 
-    rad_lat1 = np.radians(lat1)
-    rad_lat2 = np.radians(lat2)
-    rad_lon1 = np.radians(lon1)
-    rad_lon2 = np.radians(lon2)
-    delta_lat = np.radians(lat2 - lat1)
-    delta_lon = np.radians(lon2 - lon1)
-    
-    a = (np.sin(delta_lat/2.)**2 + (np.cos(rad_lat1) * np.cos(rad_lat2) * np.sin(delta_lon/2.)**2))
-    c = 2. * np.arctan2(np.sqrt(a), np.sqrt(1.-a))
-    
-    return R * c
-    
 
 def equirect_distance(lat1, lon1, lat2, lon2):
     """
