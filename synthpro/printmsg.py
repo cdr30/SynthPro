@@ -41,7 +41,3 @@ def inputs(config):
 def outputs(config):
     """ Print outputs """
     print '\nCreating output file: ' + config.get('synth_profiles', 'file_name') + '\n'
-    
-
-if __name__ == '__main__':
-    pass
