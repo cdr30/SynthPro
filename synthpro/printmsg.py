@@ -6,6 +6,10 @@ Module containing routines to print messages to standard output.
 import tools
 
 
+def finished():
+    """ Print finished message """
+    print '\nFinished!\n'
+    
 def extracting(n, nmax):
     """ Print progress bar for extraction of data"""
     tools.print_progress('Extracting synthetic data', nmax, n)

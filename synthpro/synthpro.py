@@ -19,28 +19,33 @@ def main():
     # Parse arguments and configuration files
     args = parse_args.get_args()
     config = namelist.get_namelist(args)
-    printmsg.start(args, config)
+    if config.getboolean('options', 'print_stdout'): 
+        printmsg.start(args, config)
     
     # Build paths to data files
     tools.build_file_name(args, config, 'obs_profiles')
     tools.build_file_name(args, config, 'synth_profiles')
     tools.build_file_name(args, config, 'model_temp')
-    tools.build_file_name(args, config, 'model_sal')
-    printmsg.inputs(config)
+    tools.build_file_name(args, config, 'model_sal') 
+    if config.getboolean('options', 'print_stdout'): 
+        printmsg.inputs(config)
     
     # Create file to store synthetic profiles
     profiles.create_synth_file(config)
-    printmsg.outputs(config)
+    if config.getboolean('options', 'print_stdout'): 
+        printmsg.outputs(config)
         
     # Load data objects 
-    obsDat = profiles.assoc_profiles(config, 'obs_profiles'); printmsg.loading(1)
-    synthDat = profiles.assoc_profiles(config, 'synth_profiles'); printmsg.loading(2)
-    modelTemp = model.assoc_model(config, 'model_temp'); printmsg.loading(3)
-    modelSal = model.assoc_model(config, 'model_sal'); printmsg.loading(4)
-        
+    obsDat = profiles.assoc_profiles(config, 'obs_profiles')
+    synthDat = profiles.assoc_profiles(config, 'synth_profiles')
+    modelTemp = model.assoc_model(config, 'model_temp')
+    modelSal = model.assoc_model(config, 'model_sal')
+    if config.getboolean('options', 'print_stdout'): 
+        printmsg.loading(1,1)
+    
     # Extract profiles
     extract.extract_profiles(config, obsDat, synthDat, modelTemp, modelSal)
     
     # Finished
-    print '\nFinished!\n'
+    printmsg.finished()
  

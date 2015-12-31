@@ -32,8 +32,6 @@ def extract_profiles(config, obsDat, synthDat, modelTemp, modelSal):
     syn_temps = synthDat.temps
     syn_sals = synthDat.sals
     
-    printmsg.extracting(0, nmax)
-    
     for nob in nobs:        
         ob_lat = obsDat.lats[nob]
         ob_lon = obsDat.lons[nob]
@@ -48,10 +46,12 @@ def extract_profiles(config, obsDat, synthDat, modelTemp, modelSal):
         syn_temps[nob] = syn_t
         syn_sals[nob] = syn_s
         
-        printmsg.extracting(nob + 1, nmax)
+        if config.getboolean('options', 'print_stdout'):
+            printmsg.extracting(nob + 1, nmax)
     
-    printmsg.writing(0, 3)
-    synthDat.write_sals(syn_sals); printmsg.writing(1, 3)
-    synthDat.write_temps(syn_temps); printmsg.writing(2, 3)
-    synthDat.write_depths(syn_depths); printmsg.writing(3, 3)
-
+    synthDat.write_sals(syn_sals)
+    synthDat.write_temps(syn_temps)
+    synthDat.write_depths(syn_depths)
+    if config.getboolean('options', 'print_stdout'):
+        printmsg.writing(1, 1)
+        
