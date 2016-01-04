@@ -14,6 +14,9 @@ def extracting(n, nmax):
     """ Print progress bar for extraction of data"""
     tools.print_progress('Extracting synthetic data', nmax, n)
     
+def combining(n, nmax):
+    """ Print progress bar for combining synthetic profiles"""
+    tools.print_progress('Combining synthetic data', nmax, n)
     
 def writing(n, nmax):
     """ Print progress bar for extraction of data"""

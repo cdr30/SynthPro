@@ -57,11 +57,11 @@ class ModelData(object):
         if len(dat.shape) == 1:
             dat = dat[:]
         elif len(dat.shape) == 2:
-            dat = dat[self.jmin:self.jmax, self.imin:self.imax]
+            dat = dat[self.jmin:self.jmax+1, self.imin:self.imax+1]
         elif len(dat.shape) == 3:
-            dat = dat[:, self.jmin:self.jmax, self.imin:self.imax]
+            dat = dat[:, self.jmin:self.jmax+1, self.imin:self.imax+1]
         elif (len(dat.shape) == 4) & (dat.shape[0] == 1):
-            dat = dat[0, :, self.jmin:self.jmax, self.imin:self.imax]
+            dat = dat[0, :, self.jmin:self.jmax+1, self.imin:self.imax+1]
         else:
             raise ShapeError('%s has invalid shape: &s', ncvar,
                              repr(dat.shape))

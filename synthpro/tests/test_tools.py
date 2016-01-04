@@ -4,9 +4,28 @@ Unit tests for functions in tools module.
 """
 import unittest
 import numpy as np
+import matplotlib.pyplot as plt
 
 import tools
 
+class TestMapCores(unittest.TestCase):
+    """ Unit tests for <tools.mapcores> """
+
+    def test_mapcores_complete(self):
+        """ Ensures that all regions of model data are correctly indexed
+        following mapping to different cores """
+        nj, ni = 1000, 2000
+        nycores, nxcores = 7, 3
+        ncores = nxcores * nycores
+        dat = np.zeros(nj * ni).reshape(nj, ni)
+        imins, imaxs, jmins, jmaxs = tools.mapcores(ni, nj, nxcores, nycores)
+
+        for ncore in range(ncores):
+            imin, imax = imins[ncore], imaxs[ncore] + 1
+            jmin, jmax = jmins[ncore], jmaxs[ncore] + 1
+            dat[jmin:jmax, imin:imax] += 1
+
+        self.assertTrue((dat == 1).all())
 
 class TestIdxIsValid(unittest.TestCase):
     """ Unit tests for <tools.idx_is_valid> """
@@ -168,10 +187,13 @@ class TestFindNearest(unittest.TestCase):
         """
         lats = np.arange(90).reshape(9,10)/10
         lons = (np.arange(90)).reshape(10,9).T/9
-        self.assertEqual(tools.find_nearest_neigbour(0, 0, lats, lons), (0, 0))
-        self.assertEqual(tools.find_nearest_neigbour(10, 10, lats, lons), (8, 9))
         
-    
-
+        iind, jind, d = tools.find_nearest_neigbour(0, 0, lats, lons)
+        self.assertEqual((iind, jind), (0, 0))
+        iind, jind, d = tools.find_nearest_neigbour(8, 9, lats, lons)
+        self.assertEqual((iind, jind), (8, 9))
+        iind, jind, d = tools.find_nearest_neigbour(20, 20, lats, lons)
+        self.assertEqual((iind, jind), (None, None))
+        
 if __name__ == '__main__':
     unittest.main()
