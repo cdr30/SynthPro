@@ -41,7 +41,15 @@ class Profiles(object):
             
         if profile_type == 'synth_profiles':
             self.dist_var = 'distance_to_ob'
-            self.duplicate_var(self.lat_var, self.dist_var)
+            ncf = Dataset(self.f, 'r')
+            vars = ncf.variables.keys()
+            ncf.close()
+            
+            if self.dist_var in vars :
+                self.load_dists()
+            else:
+                self.duplicate_var(self.lat_var, self.dist_var)
+            
             
     def duplicate_var(self, ncvar1, ncvar2):
         """ Create new variable based on existing variable """
@@ -82,28 +90,33 @@ class Profiles(object):
         """ Write depth data to file. """
         self.write_var(self.sal_var, dat)
                 
+    def load_dists(self):
+        """ Load distances as <np.array> with dimensions [n] """
+        self.dists = self.read_var(self.dist_var)
+        self.test_shape(self.dist_var, self.dists.shape, 1)
+    
     def load_temps(self):
-        """ Load temperatures as <np.array> with dimensions [t, z] """
+        """ Load temperatures as <np.array> with dimensions [n, z] """
         self.temps = self.read_var(self.temp_var)
         self.test_shape(self.temp_var, self.temps.shape, 2)
         
     def load_sals(self):
-        """ Load salinities as <np.array> with dimensions [t, z] """
+        """ Load salinities as <np.array> with dimensions [n, z] """
         self.sals = self.read_var(self.sal_var)
         self.test_shape(self.sal_var, self.sals.shape, 2)
         
     def load_depths(self):
-        """ Load depths as <np.array> with dimensions [t, z] """
+        """ Load depths as <np.array> with dimensions [n, z] """
         self.depths = self.read_var(self.depth_var)
         self.test_shape(self.depth_var, self.depths.shape, 2)
         
     def load_lats(self):
-        """ Load latitudes as <np.array> with dimensions [t] """
+        """ Load latitudes as <np.array> with dimensions [n] """
         self.lats = self.read_var(self.lat_var)
         self.test_shape(self.lat_var, self.lats.shape, 1)
         
     def load_lons(self):
-        """ Load longitudes as <np.array> with dimensions [t] """
+        """ Load longitudes as <np.array> with dimensions [n] """
         self.lons = self.read_var(self.lon_var)
         self.test_shape(self.lon_var, self.lons.shape, 1)
         

@@ -4,7 +4,41 @@ Useful functions
 """
 
 import numpy as np
+import os
 
+def rmfile(f):
+    """
+    Delete specified file.
+    
+    """
+    os.remove(f)
+    
+    
+def mapcores(ni, nj, nxcores, nycores):
+    """ 
+    Return maps of imin, imax, jmin, jmax for each core.
+    
+    """
+    ncores = nxcores * nycores
+    coreshape = (nycores, nxcores)
+    imin = np.zeros(coreshape)
+    imax = np.zeros(coreshape)
+    jmin = np.zeros(coreshape)
+    jmax = np.zeros(coreshape)
+    
+    jinds = np.array_split(np.arange(nj), nycores)
+    iinds = np.array_split(np.arange(ni), nxcores)
+
+    for nx in range(nxcores):
+        for ny in range(nycores):
+            imin[ny, nx] = iinds[nx].min()
+            imax[ny, nx] = iinds[nx].max()
+            jmin[ny, nx] = jinds[ny].min()
+            jmax[ny, nx] = jinds[ny].max()
+    
+    return (imin.reshape(ncores), imax.reshape(ncores), 
+            jmin.reshape(ncores), jmax.reshape(ncores))
+    
 
 def idx_is_valid(ind):
     """ Return False if index returned by <np.where> is empty. """
@@ -192,4 +226,8 @@ def build_file_name(args, config, section):
     f = config.get(section, 'dir') + config.get(section, 'fpattern')
     f = insert_date(args, config, f)
     config.set(section, 'file_name', value=f)
+    
+    return config
+    
+
     
