@@ -7,3 +7,7 @@
   
 # Ignore emacs tmp files
 *~
+
+# Other...
+.DS_Store
+
