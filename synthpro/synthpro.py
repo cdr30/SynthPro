@@ -5,7 +5,6 @@ Module containing main routines to execute synthpro.
 
 import parse_args
 import namelist
-from mpi4py import MPI
 import numpy as np
 
 import profiles
@@ -15,6 +14,11 @@ import tools
 import printmsg
 import para
 
+try:
+    from mpi4py import MPI
+except ImportError:
+    print 'WARNING: mpi4py not available. Parallel jobs will fail.'
+    
 
 def main_singlenode(args, config):
     """ Run a single instance of synthpro """
