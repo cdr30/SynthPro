@@ -1,13 +1,29 @@
 #!/usr/bin/env python2.7
 """
-Script to visualize synthetic profile data generated
-from EN4 observational profiles.
+Script to visualize synthetic profile data.
 
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
+import argparse
+
+
+def get_args():
+    """
+    Get arguments from command line.
+    
+    """
+    parser = argparse.ArgumentParser(
+        description='Plot observed and synthetic profile data.')
+    parser.add_argument(
+        'obsf', help='Path to netcdf file containing observed profiles.')
+    parser.add_argument(
+        'synf', help='Path to netcdf file containing synthetic profiles')
+    args = parser.parse_args()
+
+    return args
 
 
 def load_profile_data(f, var, qcvar=None, reject='4'):
@@ -47,70 +63,64 @@ def return_1d_qc(dat_qc, reject='4'):
     
     return np.array(qc_out)
     
+if __name__ == '__main__':
+    args = get_args()
+    
+    ### Define variable names
+    tvar = 'POTM_CORRECTED'
+    svar = 'PSAL_CORRECTED'
+    zvar = 'DEPH_CORRECTED'
+    qcvar_t = 'POTM_CORRECTED_QC'
+    qcvar_s = 'PSAL_CORRECTED_QC'
+     
+    ### Load data
+    tobs = load_profile_data(args.obsf, tvar, qcvar=qcvar_t)
+    tsyn = load_profile_data(args.synf, tvar, qcvar=qcvar_t)
+    sobs = load_profile_data(args.obsf, svar, qcvar=qcvar_s)
+    ssyn = load_profile_data(args.synf, svar, qcvar=qcvar_s)
+    zobs = load_profile_data(args.obsf, zvar, qcvar=qcvar_t)
+    zsyn = load_profile_data(args.synf, zvar, qcvar=qcvar_t)
+ 
+    ### Plot observations vs synthetic temperature data
+    plt.figure()
+    plt.plot(tobs.reshape(tobs.size), tsyn.reshape(tsyn.size), 'xr')
+    plt.xlabel('Observed T')
+    plt.ylabel('Synthetic T')
+    plt.show()
+    
+    ### Plot observations vs synthetic salinity data
+    plt.figure()
+    plt.plot(sobs.reshape(sobs.size), ssyn.reshape(ssyn.size), 'xr')
+    plt.xlabel('Observed S')
+    plt.ylabel('Synthetic S')
+    plt.show()
 
-### Define variable names
-tvar = 'POTM_CORRECTED'
-svar = 'PSAL_CORRECTED'
-zvar = 'DEPH_CORRECTED'
-qcvar_t = 'POTM_CORRECTED_QC'
-qcvar_s = 'PSAL_CORRECTED_QC'
-yr, mon = 1900,01
 
 
-### File locations
-obsf = '/tmp/EN.4.1.1.f.profiles.g10.%4i%02i.nc' % (yr, mon)
-synf = '/tmp/EN.4.1.1.f.profiles.synthetic.%4i%02i.nc' % (yr, mon)
-#synf_fd = '/tmp/EN.4.1.1.f.profiles.synthetic_full_depth.%4i%02i.nc' % (yr, mon)
-
-
-### Load data
-tobs = load_profile_data(obsf, tvar, qcvar=qcvar_t)
-tsyn = load_profile_data(synf, tvar, qcvar=qcvar_t)
-#tsyn_fd = load_profile_data(synf_fd, tvar, qcvar=qcvar_t)
-
-sobs = load_profile_data(obsf, svar, qcvar=qcvar_s)
-ssyn = load_profile_data(synf, svar, qcvar=qcvar_s)
-#ssyn_fd = load_profile_data(synf_fd, svar, qcvar=qcvar_s)
-
-zobs = load_profile_data(obsf, zvar, qcvar=qcvar_t)
-zsyn = load_profile_data(synf, zvar, qcvar=qcvar_t)
-#zsyn_fd = load_profile_data(synf_fd, zvar, qcvar=qcvar_t)
-
-zobs_s = load_profile_data(obsf, zvar, qcvar=qcvar_s)
-zsyn_s = load_profile_data(synf, zvar, qcvar=qcvar_s)
-#zsyn_s_fd = load_profile_data(synf_fd, zvar, qcvar=qcvar_s)
-
-
-### Plot observations vs synthetic temperature data
-plt.figure()
-plt.plot(tobs.reshape(tobs.size), tsyn.reshape(tsyn.size), 'xr')
-plt.xlabel('Observed T')
-plt.ylabel('Synthetic T')
-plt.show()
-### Plot observed temperatures against depth
-plt.figure()
-plt.plot(tobs.reshape(zobs.size), -zobs.reshape(zobs.size), 'xr')
-plt.xlabel('Observed T')
-plt.ylabel('Depth')
-plt.show()
-
-### Plot synthetic temperatures against depth
-plt.figure()
-plt.plot(tsyn.reshape(tsyn.size), -zsyn.reshape(zsyn.size), 'xr')
-plt.xlabel('Synthetic T')
-plt.ylabel('Depth')
-plt.show()
-
-### Plot observed salinity against depth
-plt.plot(sobs.reshape(sobs.size), -zobs_s.reshape(zobs_s.size), 'xr')
-plt.xlabel('Observed S')
-plt.ylabel('Depth')
-plt.show()
-
-### Plot synthetic salinity against depth
-plt.plot(ssyn.reshape(ssyn.size), -zsyn_s.reshape(zsyn_s.size), 'xr')
-plt.xlabel('Synthetic S')
-plt.ylabel('Depth')
-plt.show()
+# ### Plot observed temperatures against depth
+# plt.figure()
+# plt.plot(tobs.reshape(zobs.size), -zobs.reshape(zobs.size), 'xr')
+# plt.xlabel('Observed T')
+# plt.ylabel('Depth')
+# plt.show()
+# 
+# ### Plot synthetic temperatures against depth
+# plt.figure()
+# plt.plot(tsyn.reshape(tsyn.size), -zsyn.reshape(zsyn.size), 'xr')
+# plt.xlabel('Synthetic T')
+# plt.ylabel('Depth')
+# plt.show()
+# 
+# ### Plot observed salinity against depth
+# plt.plot(sobs.reshape(sobs.size), -zobs_s.reshape(zobs_s.size), 'xr')
+# plt.xlabel('Observed S')
+# plt.ylabel('Depth')
+# plt.show()
+# 
+# ### Plot synthetic salinity against depth
+# plt.plot(ssyn.reshape(ssyn.size), -zsyn_s.reshape(zsyn_s.size), 'xr')
+# plt.xlabel('Synthetic S')
+# plt.ylabel('Depth')
+# plt.show()
 
 
