@@ -43,7 +43,8 @@ Unit tests are executed from within the main package directory using the followi
 
 #### Data formats
 ##### Observed profiles
-Observational profiles must be provided in the netcdf format used by the [EN4 database][EN4-ref]. Note that date and time information within the input file is ignored and SynthPro will attempt to extract synthetic versions of all observed profiles. 
+Observational profiles must be provided in the netcdf format used by the [EN4 database][EN4-ref]. Note that date and time information within the input file is ignored and SynthPro will attempt to extract synthetic versions of all observed profiles. If you are only interested in a limited number of profiles, this file should be pre-processed prior to running SynthPro. 
+
 
 ##### Synthetic profiles
 Synthetic profiles are returned in the same netcdf format as the observational data with an additional variable `distance_to_ob` describing the distance on a sphere between the observed latitude/longitude and the chosen model grid-point. Observed profiles that lie more than 2 degrees latitude/longitude from a valid model grid point are specified as missing data.
@@ -52,9 +53,8 @@ Synthetic profiles are returned in the same netcdf format as the observational d
 Model data must be provided in a netcdf format with the following variables and dimensions (variable names can be specied during configuration): `temperature(z, y, x)`, `salinity(z, y, x)`, `latitude(y, x)`, `longitude(y, x)`, `depth(z)`. Latitude and longitude are specifed as two-dimensional fields to support models with irregular horizontal grids (e.g. NEMO). 
 
 
-
-
-#### Annotated `namelist.ini` file
+### Configuring a `namelist.ini` file
+This section provides an annotated examples of a SynthPro namelist congiguration file. 
 
 ##### `[obs_profiles]`
 ```
