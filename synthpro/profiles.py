@@ -5,7 +5,6 @@ Data classes for profile data.
 
 from netCDF4 import Dataset
 import shutil
-import datetime
 import numpy as np
 
 
