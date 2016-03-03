@@ -3,7 +3,7 @@ SynthPro is a python utility for generating synthetic versions of observed ocean
 
 ## Using SynthPro
 #### Required python libraries
-SynthPro was developed using Python 2.7 and requires the installation of the following python libraries and their associated dependencies: `numpy`, `netCDF4`, `ConfigParser`, `argparse`, `sys`, `shutil`, `datetime`, `os`, `and mpi4py` (optional for running on multiple compute nodes).
+SynthPro was developed using Python 2.7 and requires the installation of the following python libraries and their associated dependencies: `numpy`, `netCDF4`, `ConfigParser`, `argparse`, `sys`, `shutil`, `datetime`, `os`, `unittest`, `and mpi4py` (optional for running on multiple compute nodes).
 
 #### Cloning the git repository
 To retrieve a copy of the SynthPro source code and create a working directory, run the following on the command line: 
@@ -35,7 +35,7 @@ mpirun -n $NCORES python2.7 run_synthpro.py 01 2010 config/namelist.ini
 ```
 
 #### Running tests
-Unit tests can be run using the following terminal command from within the main package directory:
+Unit tests are executed from within the main package directory using the following command:
 ```
 > python2.7 -m unittest discover -b
 ```
