@@ -1,18 +1,5 @@
-# SynthPro v0.1
-SynthPro is a python utility for generating synthetic versions of observed ocean temperature and salinity profiles using output from an ocean general circulation model. 
-
-For each observed temperature and salinity profile, SynthPro extracts a model analog using a 'nearest-neighbour' algorithm. The default behaviour is for synthetic profiles to be vertically interpolated onto the same depth levels used by the observed profiles and masked accordingly. Alternatively, the user can specify that synthetic profiles are extracted over the full-depth of the model domain.
-
-## Data formats
-#### Observed profiles
-Observational profiles must be provided in the netcdf format used by the [EN4 database][EN4-ref]. Note that date and time information within the input file is ignored and SynthPro will attempt to extract synthetic versions of all observed profiles. 
-
-#### Synthetic profiles
-Synthetic profiles are returned in the same netcdf format as the observational data with an additional variable `distance_to_ob` describing the distance on a sphere between the observed latitude/longitude and the chosen model grid-point. Observed profiles that lie more than 2 degrees latitude/longitude from a valid model grid point are specified as missing data.
-
-#### Model data
-Model data must be provided in a netcdf format with the following variables and dimensions (variable names can be specied during configuration): `temperature(z, y, x)`, `salinity(z, y, x)`, `latitude(y, x)`, `longitude(y, x)`, `depth(z)`. Latitude and longitude are specifed as two-dimensional fields to support models with irregular horizontal grids (e.g. NEMO). 
-
+# SynthPro v1.0
+SynthPro is a python utility for generating synthetic versions of observed ocean temperature and salinity profiles using output from an ocean general circulation model. For each observed temperature and salinity profile, SynthPro extracts a model analog using a 'nearest-neighbour' algorithm. The default behaviour is for synthetic profiles to be vertically interpolated onto the same depth levels used by the observed profiles and masked accordingly. Alternatively, the user can specify that synthetic profiles are extracted over the full-depth of the model domain.
 
 ## Using SynthPro
 #### Required python libraries
@@ -22,10 +9,6 @@ SynthPro was developed using Python 2.7 and requires the installation of the fol
 To retrieve a copy of the SynthPro source code and create a working directory, run the following on the command line: 
 
 ```> git clone git@github.com:cdr30/SynthPro.git```
-
-#### Running tests
-
-
 
 #### Running SynthPro
 SynthPro is invoked from the command line using the `run_synthpro.py` script. Executing this script without any arguments will return an error message that demonstrates the correct usage:
@@ -65,6 +48,26 @@ SynthPro can also be run in a python environment that supports the openMPI frame
 ```
 mpirun -n $NCORES python2.7 run_synthpro.py 01 2010 config/namelist.ini
 ```
+
+#### Running tests
+Unit tests can be run using the following terminal command from within the main package directory:
+```
+> python2.7 -m unittest discover -b
+```
+
+
+#### Data formats
+##### Observed profiles
+Observational profiles must be provided in the netcdf format used by the [EN4 database][EN4-ref]. Note that date and time information within the input file is ignored and SynthPro will attempt to extract synthetic versions of all observed profiles. 
+
+##### Synthetic profiles
+Synthetic profiles are returned in the same netcdf format as the observational data with an additional variable `distance_to_ob` describing the distance on a sphere between the observed latitude/longitude and the chosen model grid-point. Observed profiles that lie more than 2 degrees latitude/longitude from a valid model grid point are specified as missing data.
+
+##### Model data
+Model data must be provided in a netcdf format with the following variables and dimensions (variable names can be specied during configuration): `temperature(z, y, x)`, `salinity(z, y, x)`, `latitude(y, x)`, `longitude(y, x)`, `depth(z)`. Latitude and longitude are specifed as two-dimensional fields to support models with irregular horizontal grids (e.g. NEMO). 
+
+
+
 
 #### Annotated `namelist.ini` file
 
