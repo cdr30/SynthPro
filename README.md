@@ -19,27 +19,12 @@ usage: run_synthpro.py [-h] [-d DAY] month year namelist
 run_synthpro.py: error: too few arguments
 ```
 
-The `day`, `month` and `year` arguments are used only to create paths to the correct netcdf files containing observed profiles and model data. No checks are made at run time to ensure that the date and time information within each netcdf file matches the dates used in the file name. The `day` argument is optional, but `month` and `year` must be specified. The namelist argument is a path to an [INI][INI-ref] configuration file containing data paths and other options. An example namelist is available in the ./config subdirectory and an annotated version is described the section below.
+The `day`, `month` and `year` arguments are used only to create paths to the correct netcdf files containing observed profiles and model data. No checks are made at run time to ensure that the date and time information within each netcdf file matches the dates used in the file name. The `day` argument is optional, but `month` and `year` must be specified. The namelist argument is a path to an [INI][INI-ref] configuration file containing data paths and other options. An example namelist is available in the `./config` subdirectory and an annotated version is described the section below. Example data files are available within the `./data` subdirectory. 
 
-Included within the `./data` and `./config` directories are some example input data and configuration files. To ensure that SynthPro is installed correctly, run the following command and check you receive the same output to the terminal.
+To ensure that SynthPro is installed correctly, run the following command and check you receive a `Finished!` message on the command line. 
 
 ```
 > python2.7 run_synthpro.py 01 2010 config/namelist.ini
-Running SynthPro for 201001
-
-Input profile data: ./data/EN.4.1.1.f.profiles.g10.201001.nc
-Input model T data: ./data/201001__orca025l75.mersea.grid_T.nc
-Input model S data: ./data/201001__orca025l75.mersea.grid_T.nc
-
-
-Creating output file: ./data/EN.4.1.1.f.profiles.synthetic.201001.nc
-
-             Loading data: |||||||||||||||||||| 100.00% 
-Extracting synthetic data: |||||||||||||||||||| 100.00% 
-    Saving synthetic data: |||||||||||||||||||| 100.00% 
-
-Finished!
-
 ```
 
 #### Running Synthpro in parallel using openMPI
