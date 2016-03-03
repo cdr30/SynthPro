@@ -5,6 +5,7 @@ Unit tests for functions in tools module.
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
 import tools
 
