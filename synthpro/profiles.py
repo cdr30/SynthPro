@@ -29,8 +29,7 @@ class Profiles(object):
         self.depth_var = config.get(profile_type, 'depth_var')
         self.lat_var = config.get(profile_type, 'lat_var')
         self.lon_var = config.get(profile_type, 'lon_var')
-        self.dt_var = config.get(profile_type, 'dt_var')
-      
+              
         if preload_data:
             self.load_temps()
             self.load_sals()
