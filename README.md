@@ -28,14 +28,14 @@ To ensure that SynthPro is installed correctly, run the following command and ch
 ```
 
 #### Running Synthpro in parallel using openMPI
-SynthPro can also be run in a python environment that supports the openMPI framework. In this mode of operation, the model data is divided across a number of different compute nodes allowing SynthPro to be applied to very high-resolution model data without running out of memory. To enable this functionality, the namelist must be edited such that `submit_parallel = False` with `nxcores` and `nycores` specified such that their product is equal to the total number of nodes requesteed by openMPI. SynthPro can then be run from the command line as follows:
+SynthPro can also be run in a python environment that supports the openMPI framework. In this mode of operation, the model data is divided across a number of different compute nodes allowing SynthPro to be applied to very high-resolution model data without running out of memory. To enable this functionality, the namelist must be edited such that `submit_parallel = True` with `nxcores` and `nycores` specified such that their product is equal to the total number of nodes (`NCORES`) requesteed by openMPI. SynthPro can then be run from the command line as follows:
 
 ```
-mpirun -n $NCORES python2.7 run_synthpro.py 01 2010 config/namelist.ini
+mpirun -n NCORES python2.7 run_synthpro.py 01 2010 config/namelist.ini
 ```
 
 #### Running tests
-Unit tests are executed from within the main package directory using the following command:
+Automated testing is currently limited to the `tools` module that contains the fundamental functions for extracting and interpolating data. Unit tests are executed from within the main package directory using the following command:
 ```
 > python2.7 -m unittest discover -b
 ```
