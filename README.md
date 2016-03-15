@@ -9,7 +9,9 @@ SynthPro was developed using Python 2.7 and requires the installation of the fol
 To retrieve a copy of the SynthPro source code and create a working directory, run the following on the command line: 
 
 ```> git clone git@github.com:cdr30/SynthPro.git```
+
 or 
+
 ```> git clone https://github.com/cdr30/SynthPro.git```
 
 
