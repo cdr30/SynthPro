@@ -1,5 +1,5 @@
 """
-Module containing main routines to execute synthpro.
+Module containing main routines to execute SynthPro.
 
 """
 
@@ -21,32 +21,27 @@ except ImportError:
     
 
 def main_singlenode(args, config):
-    """ Run a single instance of synthpro """
+    """ Run a single instance of SynthPro """
+    printmsg.start(args, config)
     
-    if config.getboolean('options', 'print_stdout'): 
-        printmsg.start(args, config)
-    
-    # Build paths to data files
+    # Build paths to input data files
     config = tools.build_file_name(args, config, 'obs_profiles')
     config = tools.build_file_name(args, config, 'synth_profiles')
     config = tools.build_file_name(args, config, 'model_temp')
     config = tools.build_file_name(args, config, 'model_sal') 
-    if config.getboolean('options', 'print_stdout'): 
-        printmsg.inputs(config)
-    
+    printmsg.inputs(config) 
+
     # Create file to store synthetic profiles
     profiles.create_synth_file(config)
-    if config.getboolean('options', 'print_stdout'): 
-        printmsg.outputs(config)
-        
-    # Load data objects 
+    printmsg.outputs(config)        
+
+    # Load data objects     
+    printmsg.loading(config)
     obsDat = profiles.assoc_profiles(config, 'obs_profiles')
     synthDat = profiles.assoc_profiles(config, 'synth_profiles')
     modelTemp = model.assoc_model(config, 'model_temp')
     modelSal = model.assoc_model(config, 'model_sal')
-    if config.getboolean('options', 'print_stdout'): 
-        printmsg.loading(1,1)
-    
+
     # Extract profiles
     extract.extract_profiles(config, obsDat, synthDat, modelTemp, modelSal)
 
@@ -89,8 +84,9 @@ def main():
         main_singlenode(args, config)
         
     # Finished
-    if config.getboolean('options', 'print_stdout'): 
-        printmsg.finished()
+    printmsg.finished(config)
+   
+        
  
     
 

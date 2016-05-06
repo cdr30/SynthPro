@@ -11,6 +11,8 @@ import numpy as np
 class ShapeError(Exception):
     pass
 
+class ProfileTypeError(Exception):
+    pass
 
 class Profiles(object):
     """
@@ -18,7 +20,7 @@ class Profiles(object):
     netcdf files containing observed profile data
     
     """
-    def __init__(self, config, profile_type, preload_data=True):
+    def __init__(self, config, profile_type='obs_profiles', preload_data=True):
         """
         Initialize Profile class using configuration options
         
@@ -37,62 +39,13 @@ class Profiles(object):
             self.load_lats()
             self.load_lons()
             
-        if profile_type == 'synth_profiles':
-            self.dist_var = 'distance_to_ob'
-            ncf = Dataset(self.f, 'r')
-            vars = ncf.variables.keys()
-            ncf.close()
-            
-            if self.dist_var in vars :
-                self.load_dists()
-            else:
-                self.duplicate_var(self.lat_var, self.dist_var)
-            
-            
-    def duplicate_var(self, ncvar1, ncvar2):
-        """ Create new variable based on existing variable """
-        ncf = Dataset(self.f, 'r+')
-        var1 = ncf.variables[ncvar1]
-        ncf.createVariable(ncvar2, var1.dtype, dimensions=var1.dimensions,
-                           fill_value=1e20)
-        ncf.close()
-      
     def read_var(self, ncvar):
         """ Read data from specified variable """
         ncf = Dataset(self.f)
         dat = ncf.variables[ncvar][:]
         ncf.close()
         return dat   
-        
-    def write_var(self, ncvar, dat):
-        """ Write data to specified variable """#
-        #print 'Writing %s to %s' % (ncvar, self.f)
-        ncf = Dataset(self.f, 'r+')
-        var = ncf.variables[ncvar]
-        var[:] = dat
-        ncf.close()
-        
-    def write_dist(self, dat):
-        """ Write distance data to file. """
-        self.write_var(self.dist_var, dat)
-        
-    def write_depths(self, dat):
-        """ Write depth data to file. """
-        self.write_var(self.depth_var, dat)
-                
-    def write_temps(self, dat):
-        """ Write depth data to file. """
-        self.write_var(self.temp_var, dat)
-    
-    def write_sals(self, dat):
-        """ Write depth data to file. """
-        self.write_var(self.sal_var, dat)
-                
-    def load_dists(self):
-        """ Load distances as <np.array> with dimensions [n] """
-        self.dists = self.read_var(self.dist_var)
-        self.test_shape(self.dist_var, self.dists.shape, 1)
-    
+                       
     def load_temps(self):
         """ Load temperatures as <np.array> with dimensions [n, z] """
         self.temps = self.read_var(self.temp_var)
@@ -124,6 +77,79 @@ class Profiles(object):
                               (repr(varshape), ndim, varname))
         
 
+class SynthProfiles(Profiles):
+    """
+    Profile class containing additional methods to write 
+    synthetic data to file.
+    
+    """
+    def __init__(self, config, profile_type='synth_profiles', preload_data=True):
+        """ Extend __init__ method for SynthProfile class. """
+        
+        Profiles.__init__(self, config, profile_type=profile_type, preload_data=preload_data)
+        self.dist_var = 'distance_to_ob'
+        self.i_var = 'i_index'
+        self.j_var = 'j_index'
+
+        for synthvar in [self.dist_var, self.i_var, self.j_var]:
+            self.duplicate_var(self.lat_var, synthvar)
+
+    def load_dists(self):
+        """ Load distances as <np.array> with dimensions [n] """
+        self.dists = self.read_var(self.dist_var)
+        self.test_shape(self.dist_var, self.dists.shape, 1)
+        
+    def load_i(self):
+        """ Load i indices as <np.array> with dimensions [n] """
+        self.i = self.read_var(self.i_var)
+        self.test_shape(self.i_var, self.i.shape, 1)
+
+    def load_j(self):
+        """ Load j indices as <np.array> with dimensions [n] """
+        self.j = self.read_var(self.j_var)
+        self.test_shape(self.j_var, self.j.shape, 1)
+
+    def write_var(self, ncvar, dat):
+        """ Write data to specified variable """#
+        ncf = Dataset(self.f, 'r+')
+        var = ncf.variables[ncvar]
+        var[:] = dat
+        ncf.close()
+        
+    def write_dist(self, dat):
+        """ Write distance data to file. """
+        self.write_var(self.dist_var, dat)
+        
+    def write_i(self, dat):
+        """ Write i index to file. """
+        self.write_var(self.i_var, dat)
+        
+    def write_j(self, dat):
+        """ Write j index to file. """
+        self.write_var(self.j_var, dat)    
+        
+    def write_depths(self, dat):
+        """ Write depth data to file. """
+        self.write_var(self.depth_var, dat)
+                
+    def write_temps(self, dat):
+        """ Write depth data to file. """
+        self.write_var(self.temp_var, dat)
+    
+    def write_sals(self, dat):
+        """ Write depth data to file. """
+        self.write_var(self.sal_var, dat)
+
+    def duplicate_var(self, ncvar1, ncvar2):
+        """ Create new variable based on existing variable """
+        ncf = Dataset(self.f, 'r+')
+        var1 = ncf.variables[ncvar1]
+        ncf.createVariable(ncvar2, var1.dtype, dimensions=var1.dimensions,
+                           fill_value=1e20)
+        ncf.close()
+      
+
+
 def assoc_profiles(config, profile_type, **kwargs):
     """
     Return profile class object of appropriate type
@@ -133,11 +159,21 @@ def assoc_profiles(config, profile_type, **kwargs):
     data_type = config.get(profile_type, 'data_type')   
     
     if data_type == 'EN4':
-        proDat = Profiles(config, profile_type, **kwargs)
+        if profile_type == 'obs_profiles':
+            proDat = Profiles(config, **kwargs)
+        elif profile_type == 'synth_profiles':
+            proDat = SynthProfiles(config, **kwargs)
+            
     else:
         print 'Profile type %s not recognized' % data_type
         print 'Attempting to load profile data assuming default EN4 data structure'
-        proDat = Profiles(config, profile_type, **kwargs)
+        try:
+            if profile_type == 'obs_profiles':
+                proDat = Profiles(config, **kwargs)
+            elif profile_type == 'synth_profiles':
+                proDat = SynthProfiles(config, **kwargs)
+        except:
+            raise ProfileTypeError('Failed to load profile data of type: %s' % data_type)
     
     return proDat
 

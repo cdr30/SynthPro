@@ -13,7 +13,6 @@ import tools
 class ShapeError(Exception):
     pass
 
-
 class ModelData(object):
     """
     Class containing methods to read data from
@@ -37,6 +36,7 @@ class ModelData(object):
         self.imax = config.getint(data_type, 'imax')
         self.jmin = config.getint(data_type, 'jmin')
         self.jmax = config.getint(data_type, 'jmax')
+        self.test_ij_range()
         self.mask_loaded = False 
       
         if preload_data:
@@ -45,6 +45,8 @@ class ModelData(object):
             self.load_lats()
             self.load_lons()
             
+        
+        
     def read_var(self, ncvar, altf=None):
         """ Read data from specified variable """
         if altf is None:
@@ -74,6 +76,7 @@ class ModelData(object):
         """ Load data as <np.array> with dimensions [z, x, y] """
         self.data = self.read_var(self.data_var)
         self.test_shape(self.data_var, self.data.shape, 3)
+        self.test_ij_index(self.data_var, self.data[0])
         self.load_mask()
         self.data = tools.mask_data(self.data, self.mask, self.mask_mdi)
         
@@ -87,6 +90,7 @@ class ModelData(object):
             and fill value of +1e20 """
         self.lats = self.read_var(self.lat_var)
         self.test_shape(self.lat_var, self.lats.shape, 2)
+        self.test_ij_index(self.lat_var, self.lats)
         self.lats = tools.mask_data(
             self.lats, self.mask[0], self.mask_mdi, fill_value=1e20)
         self.lats = self.lats.filled()
@@ -96,6 +100,7 @@ class ModelData(object):
             and fill value of +1e20 """
         self.lons = self.read_var(self.lon_var)
         self.test_shape(self.lon_var, self.lons.shape, 2)
+        self.test_ij_index(self.lon_var, self.lons)
         self.lons = tools.mask_data(
             self.lons, self.mask[0], self.mask_mdi, fill_value=1e20)
         self.lons = self.lons.filled()
@@ -105,6 +110,7 @@ class ModelData(object):
         if not self.mask_loaded:
             self.mask = self.read_var(self.mask_var, altf=self.maskf)
             self.test_shape(self.mask_var, self.mask.shape, 3)
+            self.test_ij_index(self.mask_var, self.mask[0])
             self.mask_loaded = True
 
     def find_nearest(self, lat, lon):
@@ -119,16 +125,42 @@ class ModelData(object):
         j, i, dist = self.find_nearest(lat, lon)
         
         if (j is not None) and (i is not None):
-            return self.data[:, j, i], dist
+            dat = self.data[:, j, i]
+            i += self.imin 
+            j += self.jmin
+            return dat, dist, j, i
         else:
-            return np.ma.MaskedArray(self.data[:, 0, 0], mask=True), dist
+            return np.ma.MaskedArray(self.data[:, 0, 0], mask=True), dist, j, i
         
     def test_shape(self, varname, varshape, ndim):
         if len(varshape) != ndim:
             raise ShapeError('Shape=%s. Expected %i-D array for %s' %
                               (repr(varshape), ndim, varname))
+        
+    def test_ij_index(self, varname, dat_2d):
+        nj, ni = dat_2d.shape
+        
+        if (self.imax < 0) or (self.imax - self.imin > ni - 1):
+            raise IndexError('imax=%i is invalid. %s has valid range %i-%i.'
+                              % (self.imax, varname, 0, ni - 1))
+            
+        if (self.imin < 0) or (self.imin > ni - 1):
+            raise IndexError('imin=%i is invalid. %s has valid range %i-%i.'
+                              % (self.imax, varname, 0, ni - 1))
+            
+        if (self.jmax < 0) or (self.jmax - self.jmin > nj - 1):
+            raise IndexError('jmax=%i is invalid. %s has valid range %i-%i.'
+                              % (self.jmax, varname, 0, nj - 1))
+            
+        if (self.jmin < 0) or (self.jmin > nj - 1):
+            raise IndexError('jmin=%i is invalid. %s has valid range %i-%i.'
+                              % (self.jmax, varname, 0, nj - 1))               
 
-    
+    def test_ij_range(self):
+        if (self.imin >= self.imax) or (self.jmin >= self.jmax):
+            raise IndexError('Invalid min/max indices: imin=%i,imax=%i, jmin=%i,jmax=%i'
+                              % (self.imin, self.imax, self.jmin, self.jmax))
+
 def assoc_model(config, data_type, **kwargs):
     """
     Return model class object of appropriate type

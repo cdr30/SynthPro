@@ -87,10 +87,13 @@ def interp_obsdepth(mdl_z, mdl_dat, ob_z, ob_dat):
         # Find min/max depths after dealing with mdi values
         maskind_mdl = np.where(mdl_dat.mask != True)
         maskind_ob = np.where(ob_dat.mask != True)
-        minz = np.max([ob_z[maskind_ob].min(), mdl_z[maskind_mdl].min()])
-        maxz = np.min([ob_z[maskind_ob].max(), mdl_z[maskind_mdl].max()])
-        zind_mdl = np.where((mdl_z >= minz) & (mdl_z <= maxz))
-        zind_ob = np.where((ob_z >= minz) & (ob_z <= maxz))
+        mdl_minz, mdl_maxz = mdl_z[maskind_mdl].min(), mdl_z[maskind_mdl].max()
+        ob_minz, ob_maxz = ob_z[maskind_ob].min(), ob_z[maskind_ob].max()        
+        
+        # Find depth indices and ensure obs are between valid model depths 
+        zind_mdl = np.where((mdl_z >= mdl_minz) & (mdl_z <= mdl_maxz))
+        zind_ob = np.where((ob_z >= ob_minz) & (ob_z <= ob_maxz) 
+                           & (ob_z < mdl_maxz) & (ob_z > mdl_minz))
         
         if idx_is_valid(zind_ob) and idx_is_valid(zind_mdl):
             interp_dat = np.ma.MaskedArray(ob_dat, mask=True)
