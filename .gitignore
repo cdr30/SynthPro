@@ -8,6 +8,9 @@
 # Ignore emacs tmp files
 *~
 
+# Ignore png files
+*.png
+
 # Other...
 .DS_Store
 

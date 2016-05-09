@@ -6,6 +6,11 @@ Module containing routines to print messages to standard output.
 import tools
 import sys
 
+def message(config, message):
+    """ Print message """
+    if config.getboolean('options', 'print_stdout'): 
+        print '\n %s \n' % (message)
+
 def finished(config):
     """ Print finished message """
     if config.getboolean('options', 'print_stdout'): 
@@ -42,7 +47,8 @@ def inputs(config):
     if config.getboolean('options', 'print_stdout'):            
         print '\nInput profile data: ' + config.get('obs_profiles', 'file_name')
         print 'Input model T data: ' + config.get('model_temp', 'file_name') 
-        print 'Input model S data: ' + config.get('model_sal', 'file_name') + '\n'
+        print 'Input model S data: ' + config.get('model_sal', 'file_name')
+        print 'Synthetic profile data: ' + config.get('synth_profiles', 'file_name')+ '\n'
 
 def outputs(config):
     """ Print outputs """

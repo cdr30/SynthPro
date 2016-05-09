@@ -74,7 +74,6 @@ def main():
     Parse command line arguments and options and run synthpro.
     
     """
-
     args = parse_args.get_args()
     config = namelist.get_namelist(args)
     

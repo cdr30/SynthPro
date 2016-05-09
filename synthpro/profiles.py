@@ -83,7 +83,7 @@ class SynthProfiles(Profiles):
     synthetic data to file.
     
     """
-    def __init__(self, config, profile_type='synth_profiles', preload_data=True):
+    def __init__(self, config, profile_type='synth_profiles', preload_data=True, read_only=False):
         """ Extend __init__ method for SynthProfile class. """
         
         Profiles.__init__(self, config, profile_type=profile_type, preload_data=preload_data)
@@ -91,8 +91,9 @@ class SynthProfiles(Profiles):
         self.i_var = 'i_index'
         self.j_var = 'j_index'
 
-        for synthvar in [self.dist_var, self.i_var, self.j_var]:
-            self.duplicate_var(self.lat_var, synthvar)
+        if not read_only:
+            for synthvar in [self.dist_var, self.i_var, self.j_var]:
+                self.duplicate_var(self.lat_var, synthvar)
 
     def load_dists(self):
         """ Load distances as <np.array> with dimensions [n] """
@@ -156,7 +157,7 @@ def assoc_profiles(config, profile_type, **kwargs):
     associated with file on disk. 
     
     """
-    data_type = config.get(profile_type, 'data_type')   
+    data_type = config.get('obs_profiles', 'data_type')   
     
     if data_type == 'EN4':
         if profile_type == 'obs_profiles':
