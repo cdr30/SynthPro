@@ -142,19 +142,19 @@ class ModelData(object):
         
         if (self.imax < 0) or (self.imax - self.imin > ni - 1):
             raise IndexError('imax=%i is invalid. %s has valid range %i-%i.'
-                              % (self.imax, varname, 0, ni - 1))
+                              % (self.imax, varname, 0, ni - 1 + self.imin))
             
-        if (self.imin < 0) or (self.imin > ni - 1):
-            raise IndexError('imin=%i is invalid. %s has valid range %i-%i.'
-                              % (self.imax, varname, 0, ni - 1))
+        if (self.imin < 0):
+            raise IndexError('imin=%i is invalid for %s. imin must be > 0'
+                              % (self.imin, varname))
             
         if (self.jmax < 0) or (self.jmax - self.jmin > nj - 1):
             raise IndexError('jmax=%i is invalid. %s has valid range %i-%i.'
-                              % (self.jmax, varname, 0, nj - 1))
+                              % (self.jmax, varname, 0, nj - 1 + ni - 1 + self.jmin))
             
-        if (self.jmin < 0) or (self.jmin > nj - 1):
-            raise IndexError('jmin=%i is invalid. %s has valid range %i-%i.'
-                              % (self.jmax, varname, 0, nj - 1))               
+        if (self.jmin < 0):
+            raise IndexError('jmin=%i is invalid for %s. jmin must be > 0'
+                              % (self.jmin, varname))             
 
     def test_ij_range(self):
         if (self.imin >= self.imax) or (self.jmin >= self.jmax):
