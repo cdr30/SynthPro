@@ -133,8 +133,13 @@ def plot_dist2ob_hist(args, config, synthDat, figsize=(10,6)):
     """
     # Load distance data
     dist2ob = synthDat.read_var('distance_to_ob')
-    dist2ob = dist2ob[dist2ob.mask == False]
-    
+
+    # Remove masked data
+    try:
+        dist2ob = dist2ob[dist2ob.mask == False]
+    except AttributeError:
+        pass
+        
     # Set figure
     fig = plt.figure(figsize=figsize)
     n, bins, patches = plt.hist(dist2ob/1000., normed=True)
@@ -247,34 +252,35 @@ def plot_example_profiles(args, config, obsDat, synthDat, modelTemp,
                      % (N, var))
 
         # Select and plot profiles
-        for nplt in range(N):
-            # Select index
-            ind = np.random.choice(inds)
-            i = np.int(synthDat.i[ind]) - imin
-            j = np.int(synthDat.j[ind]) - jmin
-            lon, lat = latlon(obsDat.lons[ind], lon=True), latlon(obsDat.lats[ind])
+        if len(inds) > 0:
+            for nplt in range(N):
+                # Select index
+                ind = np.random.choice(inds)
+                i = np.int(synthDat.i[ind]) - imin
+                j = np.int(synthDat.j[ind]) - jmin
+                lon, lat = latlon(obsDat.lons[ind], lon=True), latlon(obsDat.lats[ind])
         
-            # Plot data
-            fig.add_subplot(ny, nx, nplt+1)
-            plt.plot(modelDat.data[:,j,i], -mdlz, 'r', label='Model')
-            plt.plot(obsdat[ind,:], -obsz[ind,:], 'kx-', label='Obs')
-            plt.plot(syndat[ind,:], -synz[ind,:], 'o', mfc='none', mec='r', label='Synth')
-            plt.ylim([-obsz[ind,:].max(), 0])
-            plt.title('%s, %s (i=%i, j=%i)' % (lon, lat, i, j))
+                # Plot data
+                fig.add_subplot(ny, nx, nplt+1)
+                plt.plot(modelDat.data[:,j,i], -mdlz, 'r', label='Model')
+                plt.plot(obsdat[ind,:], -obsz[ind,:], 'kx-', label='Obs')
+                plt.plot(syndat[ind,:], -synz[ind,:], 'o', mfc='none', mec='r', label='Synth')
+                plt.ylim([-obsz[ind,:].max(), 0])
+                plt.title('%s, %s (i=%i, j=%i)' % (lon, lat, i, j))
            
-            if nplt == 0:  
-                plt.legend(loc=4, fontsize=10, numpoints=1)      
+                if nplt == 0:  
+                    plt.legend(loc=4, fontsize=10, numpoints=1)      
 
-        # Add annotation
-        fig.tight_layout()
-        fig.subplots_adjust(bottom=0.05, top=0.95, left=0.1)         
-        plt.text(0.5, 0.025, var, ha='center', va='center', transform=fig.transFigure)
-        plt.text(0.025, 0.5, 'Depth (km)', ha='center', va='center', transform=fig.transFigure, rotation='vertical')
+            # Add annotation
+            fig.tight_layout()
+            fig.subplots_adjust(bottom=0.05, top=0.95, left=0.1)         
+            plt.text(0.5, 0.025, var, ha='center', va='center', transform=fig.transFigure)
+            plt.text(0.025, 0.5, 'Depth (km)', ha='center', va='center', transform=fig.transFigure, rotation='vertical')
         
-        # Save figure
-        savef = args.outdir + config.get('synth_profiles', 'file_name').split('/')[-1].replace('.nc', '.%s_profiles.png' % var)
-        printmsg.message(config,'SAVING: ' + savef)
-        fig.savefig(savef, resolution=200)
+            # Save figure
+            savef = args.outdir + config.get('synth_profiles', 'file_name').split('/')[-1].replace('.nc', '.%s_profiles.png' % var)
+            printmsg.message(config,'SAVING: ' + savef)
+            fig.savefig(savef, resolution=200)
 
 
 if __name__ == '__main__':

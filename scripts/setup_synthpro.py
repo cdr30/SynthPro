@@ -78,8 +78,8 @@ def create_symlink(f, link):
     """ Create symlink to file"""
 
     try:
-        os.symlink(f, link)
-    except OSError:
+        os.symlink(f.rstrip('/'), link.rstrip('/'))
+    except OSError as err:
         if not os.path.realpath(f) == os.path.realpath(link):
             raise IOError('Failed to create link. File exists: %s' % link)
         
@@ -100,8 +100,13 @@ def create_dirs(config):
     rootdir = config.get('dataset', 'rootdir')
     name = config.get('dataset', 'name')
     topdir = '%s%s/' % (rootdir, name)
-    print 'Setting up dataset: ' + topdir
+    pwd = os.getcwd()
+    localdir = '%s/%s/' % (pwd, config.get('dataset', 'name'))
     
+    print '\nSetting up dataset: %s\n' % topdir
+    print '\nCreating local paths: %s\n' % localdir
+
+    config.set('dataset', 'localdir', localdir)
     config.set('dataset', 'topdir', topdir)
     config.set('dataset', 'obsdir', topdir + 'obs_profiles/')      
     config.set('dataset', 'modeldir', topdir + 'model_data/')        
@@ -109,7 +114,8 @@ def create_dirs(config):
     config.set('dataset', 'plotsdir', topdir + 'plots/')             
     config.set('dataset', 'datadir', topdir + 'validation_data/')   
     config.set('dataset', 'tmpdir', topdir + 'tmp/')               
-    
+
+    create_dir(config.get('dataset', 'localdir'))
     create_dir(config.get('dataset', 'topdir'))
     create_dir(config.get('dataset', 'obsdir'))
     create_dir(config.get('dataset', 'modeldir'))
@@ -117,7 +123,15 @@ def create_dirs(config):
     create_dir(config.get('dataset', 'plotsdir'))
     create_dir(config.get('dataset', 'datadir'))
     create_dir(config.get('dataset', 'tmpdir'))
- 
+
+    create_symlink(topdir, localdir + 'topdir')
+    #create_symlink(config.get('dataset', 'obsdir'), localdir + 'obs_profiles/')
+    create_symlink(config.get('dataset', 'modeldir'), localdir + 'model_data/')
+    create_symlink(config.get('dataset', 'synthdir'), localdir + 'synth_profiles/')
+    create_symlink(config.get('dataset', 'plotsdir'), localdir + 'plots/')
+    create_symlink(config.get('dataset', 'datadir'), localdir + 'validation_data/')
+    create_symlink(config.get('dataset', 'tmpdir'), localdir + 'tmp/')
+    
     return config
 
 
@@ -188,18 +202,24 @@ def create_links_to_model(config):
 
 def create_links_to_metadata(config):
     """ Generate symbolic links to model metadata """
-
     topdir = config.get('dataset', 'topdir')
+    localdir = config.get('dataset', 'localdir')
+    
     meshf = config.get('model', 'mesh')
     create_symlink(meshf, topdir + 'mesh.nc')
+    create_symlink(meshf, localdir + 'mesh.nc')
+
     basinf = config.get('model', 'basin')
     create_symlink(basinf, topdir + 'basin.nc')
+    create_symlink(basinf, localdir + 'basin.nc')
+    
     tmaskf = config.get('model_temp', 'maskf')
     create_symlink(tmaskf, topdir + 'tmask.nc')
+    
     smaskf = config.get('model_sal', 'maskf')
     create_symlink(tmaskf, topdir + 'smask.nc')
 
-
+    
 def update_namelist(config, namelist):
     """ Update template namelist using config options """
 
@@ -227,11 +247,12 @@ def update_namelist(config, namelist):
 def write_namelist(config, namelist):
     """ Write namelist in present directory and in data directory """
 
-    pwd = os.getcwd()
-    fname_local = '%s/namelist.%s.ini' % (pwd, config.get('dataset', 'name'))
-    fname_topdir = config.get('dataset', 'topdir') + 'namelist.ini'
+    localdir = config.get('dataset', 'localdir')
+    topdir = config.get('dataset', 'topdir')
+    fname_local = '%s/namelist.%s.ini' % (localdir, config.get('dataset', 'name'))
+    fname_topdir =  topdir + 'namelist.ini'
 
-    print 'Creating namelist: %s' % fname_local
+    print '\n Updating namelist: %s \n' % fname_local
     
     with open(fname_local, 'w') as configfile:
         namelist.write(configfile)
@@ -251,8 +272,7 @@ def write_config(config):
 def create_readme(config):
     """ Generate readme file in data directory """
     readmef = config.get('dataset','topdir') + 'README.txt'
-    print 'Writing readme: %s' % (readmef)
-    
+        
     with open(readmef, 'w') as f:
         f.write('SynthPro dataset %s\n\n' % config.get('dataset', 'name'))
         f.write('This directory contains synthetic versions of observed\n'
@@ -306,7 +326,7 @@ if __name__ == '__main__':
     write_namelist(config, namelist)
     create_readme(config)
     
-    print 'Creating links ...'
+    print '\nCreating links ...\n'
     create_links_to_obs(config)
     create_links_to_model(config)
     create_links_to_metadata(config)
