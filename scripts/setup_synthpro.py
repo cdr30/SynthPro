@@ -125,7 +125,7 @@ def create_dirs(config):
     create_dir(config.get('dataset', 'tmpdir'))
 
     create_symlink(topdir, localdir + 'topdir')
-    #create_symlink(config.get('dataset', 'obsdir'), localdir + 'obs_profiles/')
+    create_symlink(config.get('dataset', 'obsdir'), localdir + 'obs_profiles/')
     create_symlink(config.get('dataset', 'modeldir'), localdir + 'model_data/')
     create_symlink(config.get('dataset', 'synthdir'), localdir + 'synth_profiles/')
     create_symlink(config.get('dataset', 'plotsdir'), localdir + 'plots/')
@@ -249,10 +249,10 @@ def write_namelist(config, namelist):
 
     localdir = config.get('dataset', 'localdir')
     topdir = config.get('dataset', 'topdir')
-    fname_local = '%s/namelist.%s.ini' % (localdir, config.get('dataset', 'name'))
+    fname_local = '%snamelist.ini' % (localdir)
     fname_topdir =  topdir + 'namelist.ini'
 
-    print '\n Updating namelist: %s \n' % fname_local
+    print '\nUpdating namelist: %s \n' % fname_local
     
     with open(fname_local, 'w') as configfile:
         namelist.write(configfile)
@@ -263,12 +263,18 @@ def write_namelist(config, namelist):
     
 def write_config(config):
     """ Write config to data directory """
-    fname = '%sconfig.ini' % config.get('dataset', 'topdir')
-
-    with open(fname, 'w') as configfile:
+    topdir = config.get('dataset', 'topdir')
+    localdir = config.get('dataset', 'localdir')
+    fname_local = '%sconfig.ini' % (localdir)
+    fname_topdir =  topdir + 'config.ini'
+    
+    with open(fname_local, 'w') as configfile:
+        config.write(configfile)
+    
+    with open(fname_topdir, 'w') as configfile:
         config.write(configfile)
 
-          
+        
 def create_readme(config):
     """ Generate readme file in data directory """
     readmef = config.get('dataset','topdir') + 'README.txt'

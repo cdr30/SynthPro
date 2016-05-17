@@ -10,10 +10,12 @@ if other data types are plotted.
 """
 
 import argparse
-from mpl_toolkits.basemap import Basemap
-import matplotlib.pyplot as plt
-import matplotlib
 
+import matplotlib
+matplotlib.use('AGG')
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
+    
 from synthpro.synthpro import *
 
 
@@ -74,7 +76,8 @@ def ubound(val, maxval):
 
 
 def plot_profile_locations(args, config, obsDat, synthDat, modelDat,
-                           figsize=(10,6), latlonpad=0.02, proj='cyl'):
+                           figsize=(10,6), latlonpad=0.02, proj='cyl',
+                           plot_global=True):
     """ Plot location of observed and extracted locations of profiles. """    
 
     # Get i, j indices
@@ -95,10 +98,18 @@ def plot_profile_locations(args, config, obsDat, synthDat, modelDat,
 
     # Set basemap
     fig = plt.figure(figsize=figsize)
-    llcrnrlon = lbound(mlons.min() - latlonpad * (mlons.max() - mlons.min()), -180)
-    llcrnrlat = lbound(mlats.min() - latlonpad * (mlats.max() - mlats.min()), -90)
-    urcrnrlon = ubound(mlons.max() + latlonpad * (mlons.max() - mlons.min()), 360)
-    urcrnrlat = ubound(mlats.max() + latlonpad * (mlats.max() - mlats.min()), 90)
+
+    if plot_global:
+        llcrnrlon = -180
+        llcrnrlat = -90
+        urcrnrlon = 180
+        urcrnrlat = 90
+    else:
+        llcrnrlon = lbound(mlons.min() - latlonpad * (mlons.max() - mlons.min()), -180)
+        llcrnrlat = lbound(mlats.min() - latlonpad * (mlats.max() - mlats.min()), -90)
+        urcrnrlon = ubound(mlons.max() + latlonpad * (mlons.max() - mlons.min()), 360)
+        urcrnrlat = ubound(mlats.max() + latlonpad * (mlats.max() - mlats.min()), 90)
+
     m = Basemap(llcrnrlon=llcrnrlon, llcrnrlat=llcrnrlat,
                 urcrnrlon=urcrnrlon, urcrnrlat=urcrnrlat,
                 projection=proj)
@@ -109,8 +120,8 @@ def plot_profile_locations(args, config, obsDat, synthDat, modelDat,
     sx, sy = m(slons, slats)
     
     # Add to basemap
-    plt.plot(mx, my, 'or', markeredgecolor='none', label='Synthetic profile locations')
-    plt.plot(sx, sy, '.k', markeredgecolor='none', label='Observed profile locations')
+    plt.plot(mx, my, '.r', markeredgecolor='none', markersize=6, label='Synthetic profile locations')
+    plt.plot(sx, sy, '.k', markeredgecolor='none', markersize=3, label='Observed profile locations')
 
     # Add notation
     parallels = np.arange(-80.,81,20.)
@@ -118,7 +129,7 @@ def plot_profile_locations(args, config, obsDat, synthDat, modelDat,
     meridians = np.arange(0.,351.,30.)
     m.drawmeridians(meridians,labels=[True,False,False,True])
     plt.legend(loc=2, numpoints=1, fontsize=8)
-    plt.title('Comparison of observed and synthetic profile locations')
+    plt.title('Comparison of observed and synthetic profile locations - %4i/%02i' % (args.year, args.month))
     
     # Save figure
     savef = args.outdir + config.get('synth_profiles', 'file_name').split('/')[-1].replace('.nc', '.location_map.png')
