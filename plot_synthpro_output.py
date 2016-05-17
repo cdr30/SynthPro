@@ -156,7 +156,7 @@ def plot_dist2ob_hist(args, config, synthDat, figsize=(10,6)):
     n, bins, patches = plt.hist(dist2ob/1000., normed=True)
     plt.xlabel('Distance (km)')
     plt.ylabel('Normalized frequency')
-    plt.title('Histogram of distances between observed and synthetic profiles')
+    plt.title('Histogram of distances between observed and synthetic profiles - %4i/%02i' % (args.year, args.month))
 
     # Save figure
     savef = args.outdir + config.get('synth_profiles', 'file_name').split('/')[-1].replace('.nc', '.distances_histogram.png')
@@ -213,7 +213,7 @@ def plot_obs_vs_synth(args, config, obsDat, synthDat, figsize=(10,6)):
         # Add annotations
         plt.xlabel('Observations')
         plt.ylabel('Synthetic data')
-        plt.title('Observed vs synthetic profiles: %s' % var)
+        plt.title('Observed vs synthetic %s profiles - %4i/%02i' % (var, args.year, args.month))
         
         # Save figure
         savef = args.outdir + config.get('synth_profiles', 'file_name').split('/')[-1].replace('.nc', '.%s_obs_vs_synth.png' % var)
@@ -259,9 +259,9 @@ def plot_example_profiles(args, config, obsDat, synthDat, modelTemp,
         # Set figure
         fig = plt.figure(figsize=figsize)
         matplotlib.rcParams['font.size'] = 8
-        fig.suptitle('Comparison of %i randomly selected profiles: %s'
-                     % (N, var))
-
+        fig.suptitle('Comparison of %i randomly selected %s profiles - %4i/%02i'
+                     % (N, var, args.year, args.month))
+               
         # Select and plot profiles
         if len(inds) > 0:
             for nplt in range(N):
