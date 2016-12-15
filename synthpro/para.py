@@ -1,5 +1,5 @@
 """
-Housekeeping routines for running synthpro in parallel using openMPI.
+Housekeeping routines for running SynthPro in parallel using openMPI.
 
 """
 
@@ -19,7 +19,7 @@ def combine_profiles(args, config, size):
     synthDatFinal = profiles.assoc_profiles(config, 'synth_profiles')
     
     for nf in np.arange(size)[1:]:
-        printmsg.combining(nf+1, size)
+        printmsg.combining(config, nf+1, size)
         oldsuffix = '_core%i.nc' % (nf - 1)
         newsuffix = '_core%i.nc' % (nf)
         
@@ -37,8 +37,6 @@ def combine_profiles(args, config, size):
         
         tools.rmfile(config.get('synth_profiles', 'file_name'))
             
-    
-        
     synthDatFinal.write_sals(synthDatFinal.sals)
     synthDatFinal.write_temps(synthDatFinal.temps)
     synthDatFinal.write_depths(synthDatFinal.depths)

@@ -1,4 +1,4 @@
-# SynthPro v1.0
+# SynthPro v0.1-alpha
 SynthPro is a python utility for generating synthetic versions of observed ocean temperature and salinity profiles using output from an ocean general circulation model. For each observed temperature and salinity profile, SynthPro extracts a model analog using a 'nearest-neighbour' algorithm. The default behaviour is for synthetic profiles to be vertically interpolated onto the same depth levels used by the observed profiles and masked accordingly. Alternatively, the user can specify that synthetic profiles are extracted over the full-depth of the model domain.
 
 ## Using SynthPro
@@ -9,6 +9,11 @@ SynthPro was developed using Python 2.7 and requires the installation of the fol
 To retrieve a copy of the SynthPro source code and create a working directory, run the following on the command line: 
 
 ```> git clone git@github.com:cdr30/SynthPro.git```
+
+or 
+
+```> git clone https://github.com/cdr30/SynthPro.git```
+
 
 #### Running SynthPro
 SynthPro is invoked from the command line using the `run_synthpro.py` script. Executing this script without any arguments will return an error message that demonstrates the correct usage:
@@ -28,14 +33,14 @@ To ensure that SynthPro is installed correctly, run the following command and ch
 ```
 
 #### Running Synthpro in parallel using openMPI
-SynthPro can also be run in a python environment that supports the openMPI framework. In this mode of operation, the model data is divided across a number of different compute nodes allowing SynthPro to be applied to very high-resolution model data without running out of memory. To enable this functionality, the namelist must be edited such that `submit_parallel = False` with `nxcores` and `nycores` specified such that their product is equal to the total number of nodes requesteed by openMPI. SynthPro can then be run from the command line as follows:
+SynthPro can also be run in a python environment that supports the openMPI framework. In this mode of operation, the model data is divided across a number of different compute nodes allowing SynthPro to be applied to very high-resolution model data without running out of memory. To enable this functionality, the namelist must be edited such that `submit_parallel = True` with `nxcores` and `nycores` specified such that their product is equal to the total number of nodes (`NCORES`) requesteed by openMPI. SynthPro can then be run from the command line as follows:
 
 ```
-mpirun -n $NCORES python2.7 run_synthpro.py 01 2010 config/namelist.ini
+mpirun -n NCORES python2.7 run_synthpro.py 01 2010 config/namelist.ini
 ```
 
 #### Running tests
-Unit tests are executed from within the main package directory using the following command:
+Automated testing is currently limited to the `tools` module that contains the fundamental functions for extracting and interpolating data. Unit tests are executed from within the main package directory using the following command:
 ```
 > python2.7 -m unittest discover -b
 ```
