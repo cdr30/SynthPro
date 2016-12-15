@@ -86,8 +86,7 @@ if __name__ == '__main__':
     plt.plot(tobs.reshape(tobs.size), tsyn.reshape(tsyn.size), 'xr')
     plt.xlabel('Observed T')
     plt.ylabel('Synthetic T')
-    plt.show()
-    
+        
     ### Plot observations vs synthetic salinity data
     plt.figure()
     plt.plot(sobs.reshape(sobs.size), ssyn.reshape(ssyn.size), 'xr')
