@@ -1,4 +1,4 @@
-# SynthPro v0.1-alpha
+# SynthPro
 SynthPro is a python utility for generating synthetic versions of observed ocean temperature and salinity profiles using output from an ocean general circulation model. For each observed temperature and salinity profile, SynthPro extracts a model analog using a 'nearest-neighbour' algorithm. The default behaviour is for synthetic profiles to be vertically interpolated onto the same depth levels used by the observed profiles and masked accordingly. Alternatively, the user can specify that synthetic profiles are extracted over the full-depth of the model domain.
 
 ## Using SynthPro
