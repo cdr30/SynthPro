@@ -5,6 +5,7 @@ Useful functions
 
 import numpy as np
 import os
+import copy
 
 def rmfile(f):
     """
@@ -77,12 +78,12 @@ def interp_obsdepth(mdl_z, mdl_dat, ob_z, ob_dat):
 
     """
     interp_z = ob_z
-    interp_dat = ob_dat
+    interp_dat = copy.deepcopy(ob_dat)
     
     if all(ob_dat.mask == True):    # Case 1
-        interp_dat = ob_dat
+        interp_dat = copy.deepcopy(ob_dat)
     elif all(mdl_dat.mask == True): # Case 2
-        interp_dat = np.ma.MaskedArray(ob_dat, mask=True)
+        interp_dat = np.ma.MaskedArray(copy.deepcopy(ob_dat), mask=True)
     else:
         # Find min/max depths after dealing with mdi values
         maskind_mdl = np.where(mdl_dat.mask != True)
@@ -96,11 +97,11 @@ def interp_obsdepth(mdl_z, mdl_dat, ob_z, ob_dat):
                            & (ob_z < mdl_maxz) & (ob_z > mdl_minz))
         
         if idx_is_valid(zind_ob) and idx_is_valid(zind_mdl):
-            interp_dat = np.ma.MaskedArray(ob_dat, mask=True)
+            interp_dat = np.ma.MaskedArray(copy.deepcopy(ob_dat), mask=True)
             interp_dat[zind_ob] = interp_1d(
                 ob_z[zind_ob], mdl_z[zind_mdl], mdl_dat[zind_mdl])
         else:
-            interp_dat = np.ma.MaskedArray(ob_dat, mask=True)
+            interp_dat = np.ma.MaskedArray(copy.deepcopy(ob_dat), mask=True)
         
     return interp_z, interp_dat
 
